@@ -15,6 +15,11 @@ import { CartsModule } from './carts/carts.module';
 import { Cart } from './carts/entities/cart.entity';
 import { Favorit } from './favorits/entities/favorit.entity';
 import { FavofirtsModule } from './favorits/favorits.module';
+
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { FilesModule } from './files/files.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
