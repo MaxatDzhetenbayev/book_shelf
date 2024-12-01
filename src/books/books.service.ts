@@ -10,6 +10,7 @@ import { Book } from './entities/book.entity';
 import { FindBooksQueryParamsDto } from './dto/find-books-query.dto';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+import { Genre } from 'src/genres/entities/genre.entity';
 
 @Injectable()
 export class BooksService {
@@ -43,7 +44,7 @@ export class BooksService {
     const { search, locale } = query;
     let where = {};
 
-    if (search) {
+    if (search && locale) {
       where[sequelize.Op.and] = [
         ...(where[sequelize.Op.and] || []),
         sequelize.where(
@@ -58,9 +59,23 @@ export class BooksService {
     try {
       const books = await this.bookRepository.findAll({
         where,
+        attributes: {
+          exclude: ['genre_id'],
+        },
+        include: {
+          model: Genre,
+          attributes: {
+            exclude: ['id'],
+          },
+        },
       });
       return books;
-    } catch (error) {}
+    } catch (error) {
+      this.logger.error(`Books could not be found. Error message: ${error}`);
+      throw new InternalServerErrorException(
+        `Books could not be found. Error message: ${error}`,
+      );
+    }
   }
 
   async findOne(id: number) {
