@@ -20,6 +20,10 @@ import { FavofirtsModule } from './favorits/favorits.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+    }),
     SequelizeModule.forRootAsync({
       useFactory: async () => ({
         dialect: 'postgres',
@@ -39,6 +43,7 @@ import { FavofirtsModule } from './favorits/favorits.module';
     AuthModule,
     CartsModule,
     FavofirtsModule,
+    FilesModule,
   ],
   controllers: [],
   providers: [],
