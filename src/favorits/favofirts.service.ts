@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Favorit } from './entities/favorit.entity';
 import { Book } from 'src/books/entities/book.entity';
 import { Genre } from 'src/genres/entities/genre.entity';
+import { Response } from 'express';
 
 @Injectable()
 export class FavoritsService {
@@ -20,12 +21,37 @@ export class FavoritsService {
   async toggleBooksToFavorit({
     userId,
     bookId,
+    res,
   }: {
     userId: number;
     bookId: number;
+    res: Response;
   }) {
     try {
       this.logger.log(`Add books to favorit for user: ${userId}...`);
+
+      const existingFaviorit = await this.faviritRepository.findOne({
+        where: {
+          userId,
+          bookId,
+        },
+      });
+
+      if (existingFaviorit) {
+        const deletedBooks = await this.faviritRepository.destroy({
+          where: {
+            userId,
+            bookId,
+          },
+        });
+        if (!deletedBooks) {
+          throw new InternalServerErrorException(
+            'Book could not be deleted from favorit',
+          );
+        }
+        this.logger.log(`Deleted Books finish. `);
+        return res.status(200).json({ message: 'Deleted' });
+      }
 
       const addedBooks = await this.faviritRepository.create({
         userId,
@@ -39,7 +65,7 @@ export class FavoritsService {
       }
 
       this.logger.log(`Added Books finish. `);
-      return addedBooks;
+      return res.status(201).json({ message: 'Created' });
     } catch (error) {
       this.logger.error(`Book could not be created. Error message: ${error}`);
       throw new InternalServerErrorException(
