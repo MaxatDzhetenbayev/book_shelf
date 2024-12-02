@@ -19,8 +19,7 @@ import { AddBookToCartDTO } from './dto/add-to-cart.dto.ts';
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
   @Post()
-  @Roles(Role.User)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   addBooksToCart(@Request() req, @Body() { books }: AddBookToCartDTO) {
     const { id: userId } = req.user;
 

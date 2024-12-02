@@ -20,6 +20,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FilesModule } from './files/files.module';
 
+import { Order } from './orders/entities/order.entity';
+import { OrdersModule } from './orders/orders.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -38,7 +40,7 @@ import { FilesModule } from './files/files.module';
         password: process.env.DB_PASS,
         database: process.env.DB,
         logging: process.env.DB_LOGGING === 'true',
-        models: [User, Profile, Genre, Book, Cart, Favorit],
+        models: [User, Profile, Genre, Book, Cart, Favorit, Order],
       }),
     }),
     UsersModule,
@@ -48,6 +50,7 @@ import { FilesModule } from './files/files.module';
     AuthModule,
     CartsModule,
     FavofirtsModule,
+    OrdersModule,
     FilesModule,
   ],
   controllers: [],

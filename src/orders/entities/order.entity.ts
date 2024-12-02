@@ -10,11 +10,20 @@ import {
 import { Book } from 'src/books/entities/book.entity';
 import { User } from 'src/users/entities/user.entity';
 
+export enum OrderStatus {
+  Waiting = 'waiting',
+  NotAvailable = 'not_available',
+  Ready = 'ready',
+  Delivered = 'delivered',
+  Expired = 'expired',
+  Returned = 'returned',
+}
+
 @Table({
-  tableName: 'carts',
-  timestamps: false,
+  tableName: 'orders',
+  timestamps: true,
 })
-export class Cart extends Model<Cart> {
+export class Order extends Model<Order> {
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
@@ -28,6 +37,19 @@ export class Cart extends Model<Cart> {
     allowNull: false,
   })
   bookId: number;
+
+  @Column({
+    type: DataType.ENUM(...Object.values(OrderStatus)),
+    allowNull: false,
+    defaultValue: OrderStatus.Waiting,
+  })
+  status: OrderStatus;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+  })
+  term: Date;
 
   @BelongsTo(() => User)
   user: User;
