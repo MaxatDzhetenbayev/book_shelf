@@ -36,6 +36,6 @@ export class FavoritsController {
   @UseGuards(JwtAuthGuard)
   findAll(@Request() req) {
     const { id: userId } = req.user;
-    return this.cartsService.findAllUserBooks(userId);
+    return this.cartsService.findAllUserFavorites(userId);
   }
 }

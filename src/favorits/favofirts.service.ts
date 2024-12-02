@@ -14,9 +14,9 @@ import { Response } from 'express';
 export class FavoritsService {
   constructor(
     @InjectModel(Favorit)
-    private faviritRepository: typeof Favorit,
+    private favoriteRepository: typeof Favorit,
   ) {}
-  private readonly logger = new Logger(this.faviritRepository.name);
+  private readonly logger = new Logger(this.favoriteRepository.name);
 
   async toggleBooksToFavorit({
     userId,
@@ -30,7 +30,7 @@ export class FavoritsService {
     try {
       this.logger.log(`Add books to favorit for user: ${userId}...`);
 
-      const existingFaviorit = await this.faviritRepository.findOne({
+      const existingFaviorit = await this.favoriteRepository.findOne({
         where: {
           userId,
           bookId,
@@ -38,7 +38,7 @@ export class FavoritsService {
       });
 
       if (existingFaviorit) {
-        const deletedBooks = await this.faviritRepository.destroy({
+        const deletedBooks = await this.favoriteRepository.destroy({
           where: {
             userId,
             bookId,
@@ -53,7 +53,7 @@ export class FavoritsService {
         return res.status(200).json({ message: 'Deleted' });
       }
 
-      const addedBooks = await this.faviritRepository.create({
+      const addedBooks = await this.favoriteRepository.create({
         userId,
         bookId,
       });
@@ -74,9 +74,9 @@ export class FavoritsService {
     }
   }
 
-  async findAllUserBooks(userId: number) {
+  async findAllUserFavorites(userId: number) {
     try {
-      const existingBooks = await this.faviritRepository.findAll({
+      const existingBooks = await this.favoriteRepository.findAll({
         where: { userId },
         attributes: {
           exclude: ['userId', 'bookId'],
@@ -104,7 +104,7 @@ export class FavoritsService {
     try {
       this.logger.log(`Delete book from user favorits`);
 
-      const book = await this.faviritRepository.findOne({
+      const book = await this.favoriteRepository.findOne({
         where: {
           id,
           userId,
