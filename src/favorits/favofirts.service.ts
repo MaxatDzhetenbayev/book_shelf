@@ -74,24 +74,40 @@ export class FavoritsService {
     }
   }
 
-  async findAllUserFavorites(userId: number) {
+  async findAllUserFavorites(userId: number): Promise<any> {
     try {
       const existingBooks = await this.favoriteRepository.findAll({
         where: { userId },
         attributes: {
           exclude: ['userId', 'bookId'],
         },
-        include: {
-          model: Book,
-          include: [Genre],
-        },
+        include: [
+          {
+            model: Book,
+            attributes: ['id', 'author', 'images', 'content'], // Указываем только нужные поля
+            include: [
+              {
+                model: Genre,
+              },
+            ],
+          },
+        ],
       });
 
       if (!existingBooks.length) {
         return [];
       }
 
-      return existingBooks;
+      const formattedBooks = existingBooks.map((item) => ({
+        id: item.book.id,
+        author: item.book.author,
+        images: item.book.images,
+        content: item.book.content,
+        genreId: item.book.genre_id,
+        genre: item.book.genre.content, // Если нужно вывести только контент жанра
+      }));
+
+      return formattedBooks;
     } catch (error) {
       this.logger.error(`Book could not be finded. Error message: ${error}`);
       throw new InternalServerErrorException(
