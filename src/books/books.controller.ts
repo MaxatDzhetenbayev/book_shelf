@@ -35,7 +35,7 @@ export class BooksController {
 
   @HttpCode(HttpStatus.OK)
   @Get()
-  findAll(@Query() query: FindBooksQueryParamsDto): Promise<Book[]> {
+  findAll(@Query() query: FindBooksQueryParamsDto): Promise<any> {
     return this.booksService.findAll(query);
   }
 

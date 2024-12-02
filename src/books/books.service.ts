@@ -11,12 +11,15 @@ import { FindBooksQueryParamsDto } from './dto/find-books-query.dto';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Genre } from 'src/genres/entities/genre.entity';
+import { Favorit } from 'src/favorits/entities/favorit.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class BooksService {
   constructor(
     @InjectModel(Book)
     private bookRepository: typeof Book,
+    private jwtService: JwtService,
   ) {}
 
   private readonly logger = new Logger(this.bookRepository.name);
@@ -40,9 +43,10 @@ export class BooksService {
     }
   }
 
-  async findAll(query: FindBooksQueryParamsDto) {
-    const { search, locale } = query;
+  async findAll(query: FindBooksQueryParamsDto): Promise<any> {
+    const { search, locale, user } = query;
     let where = {};
+    const { id: userId } = user ? this.jwtService.verify(user) : { id: null };
 
     if (search && locale) {
       where[sequelize.Op.and] = [
@@ -62,14 +66,33 @@ export class BooksService {
         attributes: {
           exclude: ['genre_id'],
         },
-        include: {
-          model: Genre,
-          attributes: {
-            exclude: ['id'],
+        include: [
+          {
+            model: Genre,
+            attributes: {
+              exclude: ['id'],
+            },
           },
-        },
+          {
+            model: Favorit,
+          },
+        ],
       });
-      return books;
+
+      const response = await Promise.all(
+        books.map(async (book) => {
+          const { favorits, ...bookInfo } = book.toJSON();
+
+          return {
+            ...bookInfo,
+            hasFavorite: favorits.some(
+              (favorit: Favorit) => favorit.userId === userId,
+            ),
+          };
+        }),
+      );
+
+      return response;
     } catch (error) {
       this.logger.error(`Books could not be found. Error message: ${error}`);
       throw new InternalServerErrorException(

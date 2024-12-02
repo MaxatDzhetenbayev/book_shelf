@@ -5,7 +5,9 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
+import { Favorit } from 'src/favorits/entities/favorit.entity';
 import { Genre } from 'src/genres/entities/genre.entity';
 
 interface IContent {
@@ -51,4 +53,7 @@ export class Book extends Model<Book> {
 
   @BelongsTo(() => Genre)
   genre: Genre;
+
+  @HasMany(() => Favorit)
+  favorits: Favorit[];
 }
