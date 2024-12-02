@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -54,8 +55,30 @@ export class ProfilesService {
     return `This action returns a #${id} profile`;
   }
 
-  update(id: number, updateProfileDto: UpdateProfileDto) {
-    return `This action updates a #${id} profile`;
+  async update(id: number, updateProfileDto: UpdateProfileDto) {
+    try {
+      this.logger.log(`Updating user profile...`);
+      const updated = await this.profileRepository.update(
+        { ...updateProfileDto },
+        { where: { user_id: id } },
+      );
+
+      if (updated) {
+        this.logger.log(`User Profile updated finish. ID: ${id}`);
+        return updated;
+      }
+
+      console.log(updated);
+
+      throw new NotFoundException(`User Profile with id ${id} not found`);
+    } catch (error) {
+      this.logger.error(
+        `User Profile could not be updated. Error message: ${error}`,
+      );
+      throw new InternalServerErrorException(
+        `User Profile could not be updated. Error message: ${error}`,
+      );
+    }
   }
 
   remove(id: number) {
