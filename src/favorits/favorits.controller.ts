@@ -16,7 +16,7 @@ import { AddBookToFavoritDTO } from './dto/add-to-favorit.dto.ts.js';
 import { FavoritsService } from './favofirts.service.js';
 import { Response } from 'express';
 
-@Controller('favorits')
+@Controller('favorites')
 export class FavoritsController {
   constructor(private readonly cartsService: FavoritsService) {}
 
