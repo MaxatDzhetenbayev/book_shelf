@@ -18,13 +18,16 @@ import { FavoritsService } from './favofirts.service.js';
 @Controller('favorits')
 export class FavoritsController {
   constructor(private readonly cartsService: FavoritsService) {}
+
   @Post()
-  @Roles(Role.User)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  addBooksToCart(@Request() req, @Body() { bookId }: AddBookToFavoritDTO) {
+  @UseGuards(JwtAuthGuard)
+  toggleBooksToFavorits(
+    @Request() req,
+    @Body() { bookId }: AddBookToFavoritDTO,
+  ) {
     const { id: userId } = req.user;
 
-    return this.cartsService.addBooksToCart({ userId, bookId });
+    return this.cartsService.toggleBooksToFavorit({ userId, bookId });
   }
 
   @Get()

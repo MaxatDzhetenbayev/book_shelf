@@ -17,7 +17,13 @@ export class FavoritsService {
   ) {}
   private readonly logger = new Logger(this.faviritRepository.name);
 
-  async addBooksToCart({ userId, bookId }: { userId: number; bookId: number }) {
+  async toggleBooksToFavorit({
+    userId,
+    bookId,
+  }: {
+    userId: number;
+    bookId: number;
+  }) {
     try {
       this.logger.log(`Add books to favorit for user: ${userId}...`);
 
