@@ -1,6 +1,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.updateColumn('orders', 'status', {
+    await queryInterface.changeColumn('orders', 'status', {
       type: Sequelize.ENUM(
         'waiting',
         'not_available',
@@ -10,13 +10,20 @@ module.exports = {
         'returned',
       ),
       allowNull: false,
-      defaultValue: 'pending',
     });
+
+    await queryInterface.sequelize.query(`
+      ALTER TABLE orders ALTER COLUMN status SET DEFAULT 'waiting';
+    `);
   },
   down: async (queryInterface) => {
-    await queryInterface.updateColumn('orders', 'status', {
+    await queryInterface.changeColumn('orders', 'status', {
       type: Sequelize.STRING,
       allowNull: false,
     });
+
+    await queryInterface.sequelize.query(`
+      ALTER TABLE orders ALTER COLUMN status DROP DEFAULT;
+    `);
   },
 };

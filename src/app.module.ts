@@ -22,6 +22,8 @@ import { FilesModule } from './files/files.module';
 
 import { Order } from './orders/entities/order.entity';
 import { OrdersModule } from './orders/orders.module';
+import { RatingsModule } from './ratings/ratings.module';
+import { Rating } from './ratings/entities/rating.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,7 +42,7 @@ import { OrdersModule } from './orders/orders.module';
         password: process.env.DB_PASS,
         database: process.env.DB,
         logging: process.env.DB_LOGGING === 'true',
-        models: [User, Profile, Genre, Book, Cart, Favorit, Order],
+        models: [User, Profile, Genre, Book, Cart, Favorit, Order, Rating],
       }),
     }),
     UsersModule,
@@ -52,6 +54,7 @@ import { OrdersModule } from './orders/orders.module';
     FavofirtsModule,
     OrdersModule,
     FilesModule,
+    RatingsModule,
   ],
   controllers: [],
   providers: [],

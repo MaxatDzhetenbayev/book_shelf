@@ -1,4 +1,11 @@
-import { Column, DataType, HasOne, Table, Model } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  HasOne,
+  Table,
+  Model,
+  HasMany,
+} from 'sequelize-typescript';
 import { Book } from 'src/books/entities/book.entity';
 
 interface IGenreContent {
@@ -17,6 +24,6 @@ export class Genre extends Model<Genre> {
   })
   content: IGenreContent;
 
-  @HasOne(() => Book)
-  book: Book;
+  @HasMany(() => Book)
+  books: Book[];
 }

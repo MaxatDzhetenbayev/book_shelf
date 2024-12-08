@@ -6,6 +6,6 @@ module.exports = {
     });
   },
   down: async (queryInterface) => {
-    await queryInterface.removeColumn('orders', 'status');
+    await queryInterface.removeColumn('orders', 'term');
   },
 };

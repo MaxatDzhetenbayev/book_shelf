@@ -12,4 +12,8 @@ export class FindBooksQueryParamsDto {
   @ValidateIf((con) => con.search)
   @IsIn(['kz', 'ru'], { message: "Locale must be either 'kz' or 'ru'" })
   locale: string;
+
+  @IsOptional()
+  @IsString()
+  popularity?: boolean;
 }

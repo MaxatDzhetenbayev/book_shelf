@@ -9,6 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { Favorit } from 'src/favorits/entities/favorit.entity';
 import { Genre } from 'src/genres/entities/genre.entity';
+import { Rating } from 'src/ratings/entities/rating.entity';
 
 interface IContent {
   kz: {
@@ -56,4 +57,7 @@ export class Book extends Model<Book> {
 
   @HasMany(() => Favorit)
   favorits: Favorit[];
+
+  @HasMany(() => Rating)
+  ratings: Rating[];
 }

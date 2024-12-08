@@ -5,13 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import sequelize from 'sequelize';
+import sequelize, { Sequelize } from 'sequelize';
 import { Book } from './entities/book.entity';
 import { FindBooksQueryParamsDto } from './dto/find-books-query.dto';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { Genre } from 'src/genres/entities/genre.entity';
 import { Favorit } from 'src/favorits/entities/favorit.entity';
+import { Rating } from 'src/ratings/entities/rating.entity';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -44,13 +45,18 @@ export class BooksService {
   }
 
   async findAll(query: FindBooksQueryParamsDto): Promise<any> {
-    const { search, locale, user } = query;
-    let where = {};
+    const { search, locale, user, popularity } = query;
+    let options = {
+      where: {},
+      order: [],
+      limit: null,
+    };
+
     const { id: userId } = user ? this.jwtService.verify(user) : { id: null };
 
     if (search && locale) {
-      where[sequelize.Op.and] = [
-        ...(where[sequelize.Op.and] || []),
+      options.where[sequelize.Op.and] = [
+        ...(options.where[sequelize.Op.and] || []),
         sequelize.where(
           sequelize.literal(`LOWER(content->'${locale}'->>'title')`),
           {
@@ -60,39 +66,52 @@ export class BooksService {
       ];
     }
 
+    if (popularity) {
+      options['order'] = [['rating', 'DESC']];
+    }
+
     try {
       const books = await this.bookRepository.findAll({
-        where,
+        ...options,
         attributes: {
-          exclude: ['genre_id'],
+          exclude: ['genre_id', 'favorits'],
+          include: [
+            [
+              Sequelize.cast(
+                Sequelize.fn(
+                  'COALESCE',
+                  Sequelize.fn('AVG', Sequelize.col('ratings.value')),
+                  0,
+                ),
+                'float',
+              ),
+              'rating',
+            ],
+            [
+              Sequelize.literal(
+                `EXISTS (SELECT 1 FROM favorits WHERE "favorits"."bookId" = "Book"."id" AND "favorits"."userId" = ${userId})`,
+              ),
+              'hasFavorite',
+            ],
+          ],
         },
+        group: ['Book.id', 'genre.id', 'favorits.id'],
         include: [
           {
             model: Genre,
-            attributes: {
-              exclude: ['id'],
-            },
+            attributes: ['id', 'content'],
           },
           {
             model: Favorit,
           },
+          {
+            model: Rating,
+            attributes: [],
+          },
         ],
       });
 
-      const response = await Promise.all(
-        books.map(async (book) => {
-          const { favorits, ...bookInfo } = book.toJSON();
-
-          return {
-            ...bookInfo,
-            hasFavorite: favorits.some(
-              (favorit: Favorit) => favorit.userId === userId,
-            ),
-          };
-        }),
-      );
-
-      return response;
+      return books;
     } catch (error) {
       this.logger.error(`Books could not be found. Error message: ${error}`);
       throw new InternalServerErrorException(
