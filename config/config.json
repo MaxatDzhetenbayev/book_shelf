@@ -14,10 +14,11 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "postgres",
+    "password": "admin",
+    "database": "book_shelf",
+    "host": "77.246.247.118",
+    "port": 6678,
+    "dialect": "postgres"
   }
 }
